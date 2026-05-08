@@ -1,117 +1,62 @@
-# My Dark Sky - Weather Forecast Application
+# Welcome to My Dark Sky
+***
 
-A beautiful weather application inspired by the original Dark Sky, featuring current weather, 8-day forecasts, and a time machine to explore historical weather data.
+## Task
+The goal of this project is to recreate a Dark Sky-style weather app using Python and Flask with a modern, beautiful UI.
+The challenge is combining multiple requirements in one app:
+- current location and searched location support
+- current weather and multi-day forecast
+- date-based weather lookup for past/future behavior
+- API rate-limit friendly caching for 5 minutes
+- cloud deployment with a public URL
 
-## Features
+## Description
+I solved the task by building a Flask backend with OpenWeather integration and a Tailwind-based frontend.
 
-- 🌤️ **Current Weather** - Real-time weather conditions
-- 📍 **Location Search** - Search any city or use current location
-- 📅 **8-Day Forecast** - Extended weather predictions
-- ⏳ **Time Machine** - Explore past and future weather
-- 💾 **Smart Caching** - 5-minute cache system for faster responses
-- 🎨 **Beautiful UI** - Dark Sky-inspired design with Tailwind CSS
+Main implementation points:
+- Built `GET /api/weather` for live weather and forecast by coordinates or search query
+- Built `GET /api/historical` for date-based weather:
+  - today uses current weather
+  - past dates use historical endpoint (if API plan supports it)
+  - future dates use forecast endpoint for nearest available date
+- Added JSON file cache with a 5-minute TTL to reduce repeated external API calls
+- Added Vercel-safe cache handling (`/tmp` in serverless runtime) to prevent deployment crashes
+- Designed a polished Dark Sky-inspired interface with location search, geolocation button, forecast cards, and a time machine section
 
-## Tech Stack
+## Installation
+```bash
+pip install -r requirements.txt
+```
 
-- **Backend**: Python Flask
-- **Frontend**: Tailwind CSS, Vanilla JavaScript
-- **API**: OpenWeather API
-- **Caching**: JSON file-based cache
+Create `.env` file:
+```bash
+cp .env.example .env
+```
 
-## Local Development
+Add your API key:
+```env
+OPENWEATHER_API_KEY=your_api_key_here
+```
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Usage
+Run locally:
+```bash
+python app.py
+```
 
-3. Get your OpenWeather API key from [https://openweathermap.org/api](https://openweathermap.org/api)
+Open in browser:
+```text
+http://localhost:5000
+```
+You can also look project: https://my-dark-sky-gamma.vercel.app/
 
-4. Create a `.env` file:
-   ```bash
-   cp .env.example .env
-   ```
-   
-5. Add your API key to `.env`:
-   ```
-   OPENWEATHER_API_KEY=your_actual_api_key
-   ```
+Use the app:
+- search for a city in the search bar
+- click the location button to use your current position
+- choose a date in Time Machine to view date-based weather
 
-6. Run the app:
-   ```bash
-   python app.py
-   ```
+### The Core Team
 
-7. Open [http://localhost:5000](http://localhost:5000)
 
-## Deployment Options
-
-### Option 1: Render
-
-1. Create a new Web Service on [Render](https://render.com)
-2. Connect your GitHub repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `gunicorn app:app`
-5. Add environment variable: `OPENWEATHER_API_KEY`
-6. Deploy!
-
-### Option 2: Railway
-
-1. Create a new project on [Railway](https://railway.app)
-2. Connect your GitHub repository
-3. Add environment variable: `OPENWEATHER_API_KEY`
-4. Railway auto-detects Flask and deploys
-
-### Option 3: Heroku
-
-1. Install Heroku CLI
-2. Login: `heroku login`
-3. Create app: `heroku create mydarksky-app`
-4. Set API key: `heroku config:set OPENWEATHER_API_KEY=your_key`
-5. Deploy: `git push heroku main`
-
-### Option 4: Netlify (with serverless functions)
-
-Requires adapting Flask routes to serverless functions. See Netlify Functions documentation.
-
-### Option 5: Vercel
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Create `vercel.json`:
-   ```json
-   {
-     "builds": [{"src": "app.py", "use": "@vercel/python"}],
-     "routes": [{"src": "/(.*)", "dest": "app.py"}]
-   }
-   ```
-3. Deploy: `vercel --prod`
-4. Add environment variable in Vercel dashboard
-
-## Environment Variables
-
-- `OPENWEATHER_API_KEY` - Your OpenWeather API key (required)
-- `FLASK_ENV` - Set to `production` for deployment
-
-## API Endpoints
-
-- `GET /` - Main application
-- `GET /api/weather?lat={lat}&lon={lon}` - Get weather by coordinates
-- `GET /api/weather?q={city}` - Get weather by city name
-- `GET /api/historical?lat={lat}&lon={lon}&date={YYYY-MM-DD}` - Historical weather
-
-## Cache System
-
-The application implements a 5-minute JSON-based cache:
-- Reduces API calls to OpenWeather
-- Improves response times
-- Cache files stored in `cache/` directory
-- Automatic cache invalidation after 5 minutes
-
-## License
-
-MIT License - feel free to use and modify!
-
-## Credits
-
-Inspired by the original Dark Sky application by The Dark Sky Company (acquired by Apple).
+<span><i>Made at <a href='https://qwasar.io'>Qwasar SV -- Software Engineering School</a></i></span>
+<span><img alt='Qwasar SV -- Software Engineering School's Logo' src='https://storage.googleapis.com/qwasar-public/qwasar-logo_50x50.png' width='20px' /></span>

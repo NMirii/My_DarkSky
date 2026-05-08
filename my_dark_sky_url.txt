@@ -1,1 +1,1 @@
-https://your-deployed-app-url.com
+https://my-dark-sky-gamma.vercel.app/

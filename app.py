@@ -12,10 +12,18 @@ load_dotenv()
 app = Flask(__name__)
 
 API_KEY = os.environ.get("OPENWEATHER_API_KEY", "")
-CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 CACHE_DURATION = 300  # 5 minutes
+# Vercel serverless only allows writes in /tmp. Local dev keeps project cache dir.
+if os.environ.get("VERCEL"):
+    CACHE_DIR = "/tmp/mydarksky-cache"
+else:
+    CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 
-os.makedirs(CACHE_DIR, exist_ok=True)
+try:
+    os.makedirs(CACHE_DIR, exist_ok=True)
+except OSError:
+    # If directory creation fails (restricted filesystem), disable file cache safely.
+    CACHE_DIR = None
 
 # Check if API key is set
 if not API_KEY:
@@ -29,19 +37,30 @@ def get_cache_key(cache_type, *args):
 
 
 def get_cache(key):
+    if not CACHE_DIR:
+        return None
     path = os.path.join(CACHE_DIR, f"{key}.json")
     if os.path.exists(path):
-        with open(path) as f:
-            data = json.load(f)
-        if time.time() - data["timestamp"] < CACHE_DURATION:
-            return data["payload"]
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            if time.time() - data["timestamp"] < CACHE_DURATION:
+                return data["payload"]
+        except (OSError, json.JSONDecodeError, KeyError, TypeError):
+            return None
     return None
 
 
 def set_cache(key, payload):
+    if not CACHE_DIR:
+        return
     path = os.path.join(CACHE_DIR, f"{key}.json")
-    with open(path, "w") as f:
-        json.dump({"timestamp": time.time(), "payload": payload}, f)
+    try:
+        with open(path, "w") as f:
+            json.dump({"timestamp": time.time(), "payload": payload}, f)
+    except OSError:
+        # Cache write failures should not fail API responses.
+        return
 
 
 def fetch_current(lat, lon):
